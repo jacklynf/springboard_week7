@@ -1,48 +1,35 @@
-#include <iostream>
+#pragma once
+
+#include <string>
 #include <list>
 #include <vector>
-using namespace std;
-
-#ifndef GAME_H_
-#define GAME_H_
 
 class Game{
 
-		private:
-			vector<string> players;
+  public:
+    Game();
+  
+    void add(std::string playerName);
+    void handle_roll(int roll);
+    bool handle_correct_answer();
+    bool handle_wrong_answer();
 
-			int places[6];
-			int purses[6];
+  private:
+    void askQuestion();
+    std::string currentCategory();
+    bool didPlayerNotWin();
+    
+    std::vector<std::string> players;
+    std::vector<int> places;
+    std::vector<int> purses;
+    std::vector<bool> inPenaltyBox;
 
-			bool inPenaltyBox[6];
+    std::list<std::string> popQuestions;
+    std::list<std::string> scienceQuestions;
+    std::list<std::string> sportsQuestions;
+    std::list<std::string> rockQuestions;
 
-			list<string> popQuestions;
-			list<string> scienceQuestions;
-			list<string> sportsQuestions;
-			list<string> rockQuestions;
-
-			unsigned int currentPlayer;
-			bool isGettingOutOfPenaltyBox;
-
-public:
-	Game();
-	string createRockQuestion(int index);
-	bool isPlayable();
-	bool add(string playerName);
-
-	int howManyPlayers();
-	void roll(int roll);
-
-	private:
-		void askQuestion();
-		string currentCategory();
-
-				public:
-					bool wasCorrectlyAnswered();
-					bool wrongAnswer();
-
-private:
-	bool didPlayerWin();
+    unsigned int currentPlayer;
+    bool isGettingOutOfPenaltyBox;
 };
 
-#endif /* GAME_H_ */

@@ -1,197 +1,159 @@
 ﻿#include "Game.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include <iostream>
-#include <sstream>
 
 using namespace std;
 
-Game::Game() : places{}, purses{}, currentPlayer(0){
-	for (int i = 0; i < 50; i++)
-	{
-		ostringstream oss (ostringstream::out);
-		oss << "Pop Question " << i;
+Game::Game() : currentPlayer(0){
+  string s = "";
+  for (int i = 0; i < 50; i++)
+  {
+    s = "Pop Question " + to_string(i);
+    popQuestions.push_back(s);
 
-		popQuestions.push_back(oss.str());
+    s = "Science Question " + to_string(i);
+    scienceQuestions.push_back(s);
 
-		char str[255];
-		sprintf(str, "Science Question %d", i);
-		scienceQuestions.push_back(str);
+    s = "Sports Question " + to_string(i);
+    sportsQuestions.push_back(s);
 
-		char str1[255];
-		sprintf(str1, "Sports Question %d", i);
-		sportsQuestions.push_back(str1);
-
-		rockQuestions.push_back(createRockQuestion(i));
-	}
+    s = "Rock Question " + to_string(i);
+    rockQuestions.push_back(s);
+  }
 }
 
-string Game::createRockQuestion(int index)
+void Game::add(string playerName){
+  players.push_back(playerName);
+  places.push_back(0);
+  purses.push_back(0);
+  inPenaltyBox.push_back(false);
+
+  cout << playerName 
+       << " was added" 
+       << endl;
+  cout << "They are player number " 
+       << players.size() 
+       << endl;
+}
+
+void Game::handle_roll(int roll)
 {
-	char indexStr[127];
-	sprintf(indexStr, "Rock Question %d", index);
-	return indexStr;
-}
+  cout << players[currentPlayer] 
+       << " is the current player" 
+       << endl;
+  cout << "They have rolled a " 
+       << roll 
+       << endl;
+  
+  isGettingOutOfPenaltyBox = (roll % 2 == 1);
 
-bool Game::isPlayable()
-{
-	return (howManyPlayers() >= 2);
-}
-
-bool Game::add(string playerName){
-	players.push_back(playerName);
-	places[howManyPlayers()] = 0;
-	purses[howManyPlayers()] = 0;
-	inPenaltyBox[howManyPlayers()] = false;
-
-	cout << playerName << " was added" << endl;
-	cout << "They are player number " << players.size() << endl;
-	return true;
-}
-
-int Game::howManyPlayers()
-{
-	return players.size();
-}
-
-void Game::roll(int roll)
-{
-	cout << players[currentPlayer] << " is the current player" << endl;
-	cout << "They have rolled a " << roll << endl;
-
-	if (inPenaltyBox[currentPlayer])
-	{
-		if (roll % 2 != 0)
-		{
-			isGettingOutOfPenaltyBox = true;
-
-			cout << players[currentPlayer] << " is getting out of the penalty box" << endl;
-			places[currentPlayer] = places[currentPlayer] + roll;
-			if (places[currentPlayer] > 11) places[currentPlayer] = places[currentPlayer] - 12;
-
-			cout << players[currentPlayer] << "'s new location is " << places[currentPlayer] << endl;
-			cout << "The category is " << currentCategory() << endl;
-			askQuestion();
-		}
-		else
-		{
-			cout << players[currentPlayer] << " is not getting out of the penalty box" << endl;
-			isGettingOutOfPenaltyBox = false;
-		}
-
-	}
-	else
-	{
-
-		places[currentPlayer] = places[currentPlayer] + roll;
-		if (places[currentPlayer] > 11) places[currentPlayer] = places[currentPlayer] - 12;
-
-		cout << players[currentPlayer] << "'s new location is " << places[currentPlayer] << endl;
-		cout << "The category is " << currentCategory() << endl;
-		askQuestion();
-	}
-
+  if (inPenaltyBox[currentPlayer])
+  {
+    if (isGettingOutOfPenaltyBox)
+    {
+      cout << players[currentPlayer] 
+           << " is getting out of the penalty box" 
+           << endl;
+    }
+    else
+    {
+      cout << players[currentPlayer] 
+           << " is not getting out of the penalty box" 
+           << endl;
+    }
+  }
+  if (!inPenaltyBox[currentPlayer] || isGettingOutOfPenaltyBox)
+  {
+    places[currentPlayer] = (places[currentPlayer] + roll) % 12;
+    cout << players[currentPlayer] 
+         << "'s new location is " 
+         << places[currentPlayer] 
+         << endl;
+    cout << "The category is " 
+         << currentCategory() 
+         << endl;
+      
+    askQuestion();
+  }
 }
 
 void Game::askQuestion()
 {
-	if (currentCategory() == "Pop")
-	{
-		cout << popQuestions.front() << endl;
-		popQuestions.pop_front();
-	}
-	if (currentCategory() == "Science")
-	{
-		cout << scienceQuestions.front() << endl;
-		scienceQuestions.pop_front();
-	}
-	if (currentCategory() == "Sports")
-	{
-		cout << sportsQuestions.front() << endl;
-		sportsQuestions.pop_front();
-	}
-	if (currentCategory() == "Rock")
-	{
-		cout << rockQuestions.front() << endl;
-		rockQuestions.pop_front();
-	}
+  if (currentCategory() == "Pop")
+  {
+    cout << popQuestions.front() << endl;
+    popQuestions.pop_front();
+  }
+  else if (currentCategory() == "Science")
+  {
+    cout << scienceQuestions.front() << endl;
+    scienceQuestions.pop_front();
+  }
+  else if (currentCategory() == "Sports")
+  {
+    cout << sportsQuestions.front() << endl;
+    sportsQuestions.pop_front();
+  }
+  else if (currentCategory() == "Rock")
+  {
+    cout << rockQuestions.front() << endl;
+    rockQuestions.pop_front();
+  }
+  else
+  {
+    throw "Invalid category";
+  }
 }
-
 
 string Game::currentCategory()
 {
-	if (places[currentPlayer] == 0) return "Pop";
-	if (places[currentPlayer] == 4) return "Pop";
-	if (places[currentPlayer] == 8) return "Pop";
-	if (places[currentPlayer] == 1) return "Science";
-	if (places[currentPlayer] == 5) return "Science";
-	if (places[currentPlayer] == 9) return "Science";
-	if (places[currentPlayer] == 2) return "Sports";
-	if (places[currentPlayer] == 6) return "Sports";
-	if (places[currentPlayer] == 10) return "Sports";
-	return "Rock";
+  vector<string> categories = {
+    "Pop", "Science", "Sports", "Rock"
+  };
+
+  return categories[places[currentPlayer] % 4];
 }
 
-bool Game::wasCorrectlyAnswered()
+bool Game::handle_correct_answer()
 {
-	if (inPenaltyBox[currentPlayer])
-	{
-		if (isGettingOutOfPenaltyBox)
-		{
-			cout << "Answer was correct!!!!" << endl;
-			purses[currentPlayer]++;
-			cout << players[currentPlayer]
-			     << " now has "
-			     << purses[currentPlayer]
-				<<  " Gold Coins." << endl;
+  bool winner = true;
 
-			bool winner = didPlayerWin();
-			currentPlayer++;
-			if (currentPlayer == players.size()) currentPlayer = 0;
+  if (!inPenaltyBox[currentPlayer] || isGettingOutOfPenaltyBox)
+  {
+    cout << "Answer was correct!!!!" 
+         << endl;
+    
+    purses[currentPlayer]++;
+    cout << players[currentPlayer]
+         << " now has "
+         << purses[currentPlayer]
+         <<  " Gold Coins." 
+         << endl;
 
-			return winner;
-		}
-		else
-		{
-			currentPlayer++;
-			if (currentPlayer == players.size()) currentPlayer = 0;
-			return true;
-		}
-
-
-
-	}
-	else
-	{
-
-		cout << "Answer was corrent!!!!" << endl;
-		purses[currentPlayer]++;
-		cout << players[currentPlayer]
-				<< " now has "
-				<< purses[currentPlayer]
-			<< " Gold Coins." << endl;
-
-		bool winner = didPlayerWin();
-		currentPlayer++;
-		if (currentPlayer == players.size()) currentPlayer = 0;
-
-		return winner;
-	}
+    winner = didPlayerNotWin();
+  }
+  
+  currentPlayer = (currentPlayer + 1) % players.size();
+  
+  return winner;
 }
 
-bool Game::wrongAnswer()
+bool Game::handle_wrong_answer()
 {
-	cout << "Question was incorrectly answered" << endl;
-	cout << players[currentPlayer] + " was sent to the penalty box" << endl;
-	inPenaltyBox[currentPlayer] = true;
+  cout << "Question was incorrectly answered" 
+       << endl;
+  cout << players[currentPlayer] 
+       << " was sent to the penalty box" 
+       << endl;
+  
+  inPenaltyBox[currentPlayer] = true;
 
-	currentPlayer++;
-	if (currentPlayer == players.size()) currentPlayer = 0;
-	return true;
-}
+  currentPlayer = (currentPlayer + 1) % players.size();
+  
+  return true;
+} 
 
-
-bool Game::didPlayerWin()
+bool Game::didPlayerNotWin()
 {
-	return !(purses[currentPlayer] == 6);
+  return purses[currentPlayer] != 6;
 }
+
