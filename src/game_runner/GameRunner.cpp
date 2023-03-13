@@ -1,31 +1,33 @@
-﻿#include <stdlib.h>
-#include "Game.h"
+﻿#include "Game.h"
+#include <string>
+#include <cstdlib>
 
-static bool notAWinner;
+using namespace std;
 
 int main()
 {
 
-	srand(time(NULL));
-	Game aGame;
+  bool still_no_winner;
+  srand(time(NULL));
+  Game game;
 
-	aGame.add("Chet");
-	aGame.add("Pat");
-	aGame.add("Sue");
+  game.add("Chet");
+  game.add("Pat");
+  game.add("Sue");
 
-	do
-	{
+  do
+  {
 
-		aGame.roll(rand() % 5 + 1);
+    game.handle_roll(rand() % 5 + 1);
 
-		if (rand() % 9 == 7)
-		{
-			notAWinner = aGame.wrongAnswer();
-		}
-		else
-		{
-			notAWinner = aGame.wasCorrectlyAnswered();
-		}
-	} while (notAWinner);
+    if (rand() % 9 == 7)
+    {
+       still_no_winner = game.handle_wrong_answer();
+    }
+    else
+    {
+      still_no_winner = game.handle_correct_answer();
+    }
+  } while (still_no_winner);
 
 }
